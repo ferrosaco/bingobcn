@@ -466,6 +466,13 @@
   min-height: 0;
 }
 
+.editorial-export {
+  color: #d0122a;
+  font-size: 0.78em;
+  font-weight: 800;
+  text-transform: none;
+}
+
 .board-layout.is-exporting.has-titles .export-legend {
   display: grid;
   grid-template-columns: 1fr 1.05fr;
@@ -883,15 +890,6 @@
 .picker-label input:focus {
   outline: 2px solid #0e86ae;
   outline-offset: 1px;
-}
-
-.picker-editorial {
-  margin: 0 0 10px;
-  color: #d0122a;
-  font-size: 0.8rem;
-  font-weight: 700;
-  line-height: 1.2;
-  text-transform: lowercase;
 }
 
 .picker-results {

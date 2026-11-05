@@ -467,9 +467,10 @@ export function BingoApp() {
                     }}
                   />
                   <span className="title-text">
-                    {[title.trim(), red ? editorials[index]?.trim() : ""]
-                      .filter(Boolean)
-                      .join(" ")}
+                    {title.trim()}
+                    {red && editorials[index]?.trim() ? (
+                      <span className="editorial-export"> {editorials[index].trim()}</span>
+                    ) : null}
                     {HEART_CELLS.has(index) ? <Heart className="title-mark" /> : null}
                     {index === STAR_CELL ? <Star className="title-mark" /> : null}
                   </span>
@@ -555,8 +556,6 @@ export function BingoApp() {
       {picker != null ? (
         <CellPicker
           cellNumber={picker + 1}
-          red={RED_CELLS.has(picker)}
-          editorial={editorials[picker] ?? ""}
           onClose={() => setPicker(null)}
           onPickFile={() => openGallery(picker)}
           onPickWork={(work) => applyAnilistWork(picker, work)}

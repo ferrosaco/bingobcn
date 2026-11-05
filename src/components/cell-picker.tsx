@@ -18,15 +18,11 @@ function workDetail(work: AnilistWork): string {
 
 export function CellPicker({
   cellNumber,
-  red,
-  editorial,
   onClose,
   onPickFile,
   onPickWork,
 }: {
   cellNumber: number;
-  red: boolean;
-  editorial: string;
   onClose: () => void;
   onPickFile: () => void;
   onPickWork: (work: AnilistWork) => Promise<void>;
@@ -139,7 +135,6 @@ export function CellPicker({
           ))}
         </ul>
       ) : null}
-      {red && editorial.trim() ? <p className="picker-editorial">{editorial}</p> : null}
       <button
         type="button"
         className="picker-file"
