@@ -173,7 +173,7 @@ export function BingoApp() {
       });
       return emptySlots();
     });
-    setNotice("Cartón vacío.");
+    setTitles(emptyTitles());
   }
 
   async function exportCard() {
