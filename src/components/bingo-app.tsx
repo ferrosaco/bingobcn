@@ -194,7 +194,7 @@ export function BingoApp() {
       const { domToBlob } = await import("modern-screenshot");
       const blob = await domToBlob(node, {
         scale: 3,
-        backgroundColor: "#d4f2fb",
+        backgroundColor: includeTitles ? "#c2e3f2" : "#d4f2fb",
       });
       if (!blob) throw new Error("export vacía");
       const url = URL.createObjectURL(blob);
@@ -366,10 +366,17 @@ export function BingoApp() {
         </div>
 
         <section className="titles" aria-label="Títulos de las obras">
+          <header className="export-brand">
+            <p className="bingo-word">BINGO</p>
+            <p className="export-city">BARCELONA</p>
+          </header>
           <h2>Títulos</h2>
           <ol>
             {titles.map((title, index) => (
-              <li key={index} className="title-row">
+              <li
+                key={index}
+                className={index > 0 && index % 5 === 0 ? "title-row group-start" : "title-row"}
+              >
                 <span className="title-num">{index + 1}</span>
                 <div className="title-field">
                   <input
@@ -392,6 +399,25 @@ export function BingoApp() {
               </li>
             ))}
           </ol>
+          <footer className="export-legend">
+            <div className="export-legend-side">
+              <p>PUNTOS</p>
+              <p>ROJA (x3 con ed.)</p>
+              <p>LÍNEA (puntos x2)</p>
+              <p className="export-hash">#BINGObcn26</p>
+            </div>
+            <div className="export-legend-side">
+              <p className="legend-mark">
+                <Heart className="legend-icon" />
+                MILAGRITOS (2 puntos)
+              </p>
+              <p className="legend-mark">
+                <Star className="legend-icon star-icon" />
+                LIC. ESTRELLA (3 puntos)
+              </p>
+              <p className="export-score">Puntuación:{score ? ` ${score}` : ""}</p>
+            </div>
+          </footer>
         </section>
         </div>
 

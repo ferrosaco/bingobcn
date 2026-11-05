@@ -230,15 +230,29 @@
   top: 0;
   left: 0;
   z-index: 5;
-  width: 940px;
+  width: 1280px;
   align-items: stretch;
-  background: #d4f2fb;
+  background: #c2e3f2;
 }
 
 .board-layout.is-exporting.has-titles .sheet-shadow {
-  flex: 0 0 640px;
-  width: 640px;
+  flex: 0 0 620px;
+  width: 620px;
   filter: none;
+}
+
+.board-layout.is-exporting.has-titles .sheet {
+  background: #f26367;
+}
+
+.board-layout.is-exporting.has-titles .sheet-header,
+.board-layout.is-exporting.has-titles .legend {
+  display: none;
+}
+
+.board-layout.is-exporting.has-titles .grid5 {
+  gap: 8px;
+  padding: 12px;
 }
 
 .titles {
@@ -319,11 +333,115 @@
   }
 }
 
+.export-brand,
+.export-legend {
+  display: none;
+}
+
 .board-layout.is-exporting.has-titles .titles {
-  flex: 0 0 300px;
-  width: 300px;
-  margin-top: 0;
-  padding: 16px 18px 16px 8px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 18px 26px 0;
+  background: #c2e3f2;
+  display: flex;
+  flex-direction: column;
+}
+
+.board-layout.is-exporting.has-titles .titles h2 {
+  display: none;
+}
+
+.board-layout.is-exporting.has-titles .export-brand {
+  display: block;
+  padding: 6px 0 14px;
+  text-align: center;
+}
+
+.board-layout.is-exporting.has-titles .export-brand .bingo-word {
+  font-size: 7.6rem;
+  line-height: 0.76;
+  letter-spacing: 0;
+}
+
+.board-layout.is-exporting.has-titles .export-city {
+  margin: 6px 0 0;
+  color: #111111;
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  padding-left: 0.16em;
+}
+
+.board-layout.is-exporting.has-titles .titles ol {
+  gap: 1px;
+  padding: 2px 4px 14px;
+}
+
+.board-layout.is-exporting.has-titles .title-row {
+  grid-template-columns: 1.8rem minmax(0, 1fr);
+  gap: 8px;
+}
+
+.board-layout.is-exporting.has-titles .title-row.group-start {
+  margin-top: 14px;
+}
+
+.board-layout.is-exporting.has-titles .title-num,
+.board-layout.is-exporting.has-titles .title-text {
+  color: #111111;
+  font-size: 1.12rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.board-layout.is-exporting.has-titles .title-num::after {
+  content: ".";
+}
+
+.board-layout.is-exporting.has-titles .title-text {
+  text-transform: uppercase;
+  min-height: 0;
+}
+
+.board-layout.is-exporting.has-titles .export-legend {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 12px;
+  margin: auto -26px 0;
+  background: #016587;
+  color: #ffffff;
+  padding: 20px 26px 22px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.28;
+}
+
+.export-legend p {
+  margin: 0;
+}
+
+.export-legend-side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.export-legend-side .legend-mark {
+  color: #ffffff;
+}
+
+.board-layout.is-exporting.has-titles .export-legend .legend-icon path {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.export-hash,
+.export-score {
+  margin-top: auto;
+  padding-top: 12px;
 }
 
 .sheet {
