@@ -139,7 +139,12 @@ export function BingoApp() {
               preserve[index] = true;
               return;
             }
-            if (blob) next[index] = { blob, url: URL.createObjectURL(blob) };
+            if (!blob) return;
+            try {
+              next[index] = { blob, url: URL.createObjectURL(blob) };
+            } catch {
+              preserve[index] = true;
+            }
           });
           setSlots(next);
           setKeepStored(preserve);

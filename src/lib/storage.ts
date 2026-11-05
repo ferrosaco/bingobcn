@@ -76,24 +76,74 @@ function isImage(bytes: Uint8Array): boolean {
 }
 
 function blobFromBytes(bytes: Uint8Array, fallbackType: string): { blob: Blob | null; unreadable: boolean } {
-  if (!isImage(bytes)) return { blob: null, unreadable: true };
-  const copy = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(copy).set(bytes);
-  return { blob: new Blob([copy], { type: sniffType(bytes, fallbackType) }), unreadable: false };
+  try {
+    if (!isImage(bytes)) return { blob: null, unreadable: true };
+    const copy = new ArrayBuffer(bytes.byteLength);
+    new Uint8Array(copy).set(bytes);
+    return { blob: new Blob([copy], { type: sniffType(bytes, fallbackType) }), unreadable: false };
+  } catch {
+    return { blob: null, unreadable: true };
+  }
+}
+
+function bytesToBlob(buffer: ArrayBuffer, type: string): Blob | null {
+  return blobFromBytes(new Uint8Array(buffer), type).blob;
 }
 
 /**
- * Hay que pedir los bytes dentro del `onsuccess`, antes de cerrar la base.
- * Si no, Safari devuelve un blob vacío y la foto se ve como un icono roto;
- * el autoguardado siguiente grabaría ese vacío encima de la foto buena.
+ * La copia tiene que empezar dentro del `onsuccess`, antes de cerrar la base.
+ * Si una foto falla, no puede tumbar el cartón entero: títulos y el resto siguen.
+ * El blob nuevo ya no depende de IndexedDB, así que cerrar la base no lo vacía.
  */
-function readImage(image: StoredImage): Promise<{ blob: Blob | null; unreadable: boolean }> {
-  if (!image) return Promise.resolve({ blob: null, unreadable: false });
-  if (image instanceof Blob) {
-    return image.arrayBuffer().then((buffer) => blobFromBytes(new Uint8Array(buffer), image.type));
+function snapshotBlob(blob: Blob): Promise<{ blob: Blob | null; unreadable: boolean }> {
+  let size = 0;
+  try {
+    size = blob.size;
+  } catch {
+    size = 1;
   }
-  if (typeof image === "object" && image.bytes instanceof ArrayBuffer) {
-    return Promise.resolve(blobFromBytes(new Uint8Array(image.bytes), image.type));
+
+  const attempts: Promise<Blob | null>[] = [];
+  try {
+    attempts.push(blob.arrayBuffer().then((buffer) => bytesToBlob(buffer, blob.type)).catch(() => null));
+  } catch {
+    attempts.push(Promise.resolve(null));
+  }
+  try {
+    const url = URL.createObjectURL(blob);
+    attempts.push(
+      fetch(url)
+        .then((response) => response.arrayBuffer())
+        .then((buffer) => {
+          URL.revokeObjectURL(url);
+          return bytesToBlob(buffer, blob.type);
+        })
+        .catch(() => {
+          URL.revokeObjectURL(url);
+          return null;
+        }),
+    );
+  } catch {
+    attempts.push(Promise.resolve(null));
+  }
+
+  return Promise.all(attempts).then((copies) => {
+    const copy = copies.find((item) => item && item.size > 0);
+    if (copy) return { blob: copy, unreadable: false };
+    return { blob: null, unreadable: size > 0 };
+  });
+}
+
+function readImage(image: StoredImage): Promise<{ blob: Blob | null; unreadable: boolean }> {
+  try {
+    if (!image) return Promise.resolve({ blob: null, unreadable: false });
+    if (image instanceof Blob) return snapshotBlob(image);
+    if (typeof image === "object" && image.bytes instanceof ArrayBuffer) {
+      const parsed = blobFromBytes(new Uint8Array(image.bytes), image.type);
+      return Promise.resolve(parsed.blob ? parsed : { blob: null, unreadable: true });
+    }
+  } catch {
+    return Promise.resolve({ blob: null, unreadable: true });
   }
   return Promise.resolve({ blob: null, unreadable: true });
 }
@@ -111,7 +161,9 @@ export async function loadBoard(): Promise<LoadedBoard> {
           return;
         }
         const source = record.images ?? [];
-        Promise.all(source.map((image) => readImage(image)))
+        Promise.all(
+          source.map((image) => readImage(image).catch(() => ({ blob: null, unreadable: true }))),
+        )
           .then((results) => {
             resolve({
               record: {
@@ -137,13 +189,17 @@ export async function saveBoard(record: BoardRecord, preserve: boolean[] = []): 
     record.images.map(async (blob, index) => {
       if (preserve[index]) return { keep: true as const, value: null };
       if (!blob || blob.size === 0) return { keep: false as const, value: null };
-      const bytes = await blob.arrayBuffer();
-      const view = new Uint8Array(bytes);
-      if (!isImage(view)) return { keep: true as const, value: null };
-      return {
-        keep: false as const,
-        value: { bytes, type: sniffType(view, blob.type) } as StoredImage,
-      };
+      try {
+        const bytes = await blob.arrayBuffer();
+        const view = new Uint8Array(bytes);
+        if (!isImage(view)) return { keep: true as const, value: null };
+        return {
+          keep: false as const,
+          value: { bytes, type: sniffType(view, blob.type) } as StoredImage,
+        };
+      } catch {
+        return { keep: true as const, value: null };
+      }
     }),
   );
 
