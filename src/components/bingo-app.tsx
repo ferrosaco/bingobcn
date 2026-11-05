@@ -4,7 +4,9 @@ import { Dices, Download, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 
+import { CellPicker } from "@/components/cell-picker";
 import { Button } from "@/components/ui/button";
+import type { AnilistWork } from "@/lib/anilist";
 import {
   CELL_COUNT,
   HEART_CELLS,
@@ -22,6 +24,10 @@ function emptySlots(): Slot[] {
 }
 
 function emptyTitles(): string[] {
+  return Array.from({ length: CELL_COUNT }, () => "");
+}
+
+function emptyEditorials(): string[] {
   return Array.from({ length: CELL_COUNT }, () => "");
 }
 
@@ -76,7 +82,9 @@ function Star({ className }: { className?: string }) {
 export function BingoApp() {
   const [slots, setSlots] = useState<Slot[]>(emptySlots);
   const [titles, setTitles] = useState<string[]>(emptyTitles);
+  const [editorials, setEditorials] = useState<string[]>(emptyEditorials);
   const [score, setScore] = useState("");
+  const [picker, setPicker] = useState<number | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -108,6 +116,11 @@ export function BingoApp() {
             if (index < CELL_COUNT && typeof title === "string") storedTitles[index] = title;
           });
           setTitles(storedTitles);
+          const storedEditorials = emptyEditorials();
+          record.editorials?.forEach((editorial, index) => {
+            if (index < CELL_COUNT && typeof editorial === "string") storedEditorials[index] = editorial;
+          });
+          setEditorials(storedEditorials);
         }
         setHydrated(true);
       })
@@ -131,12 +144,13 @@ export function BingoApp() {
         images: slots.map((slot) => slot?.blob ?? null),
         score,
         titles,
+        editorials,
       }).catch(() => {
         setNotice("No se ha podido guardar el cartón en este dispositivo.");
       });
     }, 300);
     return () => window.clearTimeout(timeout);
-  }, [slots, score, titles, hydrated]);
+  }, [slots, score, titles, editorials, hydrated]);
 
   function replaceSlot(index: number, blob: Blob) {
     setSlots((current) => {
@@ -159,11 +173,32 @@ export function BingoApp() {
   }
 
   function openPicker(index: number) {
+    setPicker(index);
+  }
+
+  function openGallery(index: number) {
     targetRef.current = index;
     const input = fileRef.current;
     if (!input) return;
     input.value = "";
     input.click();
+  }
+
+  async function applyAnilistWork(index: number, work: AnilistWork) {
+    const response = await fetch(`/api/cover?url=${encodeURIComponent(work.coverUrl)}`);
+    if (!response.ok) throw new Error("No se ha podido descargar la portada.");
+    const downloaded = await response.blob();
+    const file = new File([downloaded], "anilist.jpg", {
+      type: downloaded.type || "image/jpeg",
+    });
+    const blob = await fileToCover(file);
+    replaceSlot(index, blob);
+    setTitles((current) => {
+      if (current[index]?.trim()) return current;
+      const next = current.slice();
+      next[index] = work.title;
+      return next;
+    });
   }
 
   function clearCell(index: number) {
@@ -186,6 +221,7 @@ export function BingoApp() {
     }
     setSlots((current) => order.map((index) => current[index]));
     setTitles((current) => order.map((index) => current[index] ?? ""));
+    setEditorials((current) => order.map((index) => current[index] ?? ""));
   }
 
   function clearAll() {
@@ -196,6 +232,7 @@ export function BingoApp() {
       return emptySlots();
     });
     setTitles(emptyTitles());
+    setEditorials(emptyEditorials());
   }
 
   async function exportCard() {
@@ -242,7 +279,7 @@ export function BingoApp() {
       <div className="bingo-column">
         <header className="intro">
           <h1>Bingo de licencias</h1>
-          <p>Toca una casilla y elige una portada de tu galería.</p>
+          <p>Toca una casilla, busca la portada en AniList o elige una foto de tu galería.</p>
         </header>
 
         <div className="toolbar">
@@ -296,6 +333,7 @@ export function BingoApp() {
                 const heart = HEART_CELLS.has(index);
                 const star = index === STAR_CELL;
                 const filled = Boolean(slot);
+                const editorial = red ? editorials[index]?.trim() : "";
                 return (
                   <div
                     key={index}
@@ -333,6 +371,11 @@ export function BingoApp() {
                       }
                       onClick={() => openPicker(index)}
                     />
+                    {editorial && filled ? (
+                      <span className="editorial-band">
+                        <span>{editorial}</span>
+                      </span>
+                    ) : null}
                     {heart ? <Heart className="mark" /> : null}
                     {star ? <Star className="mark" /> : null}
                     {!filled && !heart && !star ? (
@@ -393,10 +436,18 @@ export function BingoApp() {
           </header>
           <h2>Títulos</h2>
           <ol>
-            {titles.map((title, index) => (
+            {titles.map((title, index) => {
+              const red = RED_CELLS.has(index);
+              return (
               <li
                 key={index}
-                className={index > 0 && index % 5 === 0 ? "title-row group-start" : "title-row"}
+                className={[
+                  "title-row",
+                  red ? "title-row-red" : "",
+                  index > 0 && index % 5 === 0 ? "group-start" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
                 <span className="title-num">{index + 1}</span>
                 <div className="title-field">
@@ -416,9 +467,33 @@ export function BingoApp() {
                     }}
                   />
                   <span className="title-text">{title}</span>
+                  {red ? (
+                    <>
+                      <input
+                        className="editorial-input"
+                        value={editorials[index] ?? ""}
+                        maxLength={40}
+                        autoComplete="off"
+                        placeholder="Editorial"
+                        aria-label={`Editorial de la casilla ${index + 1}`}
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          setEditorials((current) => {
+                            const next = current.slice();
+                            next[index] = value;
+                            return next;
+                          });
+                        }}
+                      />
+                      {editorials[index]?.trim() ? (
+                        <span className="editorial-text">{editorials[index].trim()}</span>
+                      ) : null}
+                    </>
+                  ) : null}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ol>
           <footer className="export-legend">
             <div className="export-legend-side">
@@ -443,7 +518,8 @@ export function BingoApp() {
         </div>
 
         <p className="fine-print">
-          Las portadas y los títulos se quedan en este dispositivo. Nada se sube a un servidor.
+          Las portadas, los títulos y las editoriales se quedan en este dispositivo. La búsqueda en
+          AniList solo envía el texto que escribes.
         </p>
 
         {previewUrl ? (
@@ -479,6 +555,25 @@ export function BingoApp() {
           </p>
         </div>
       </div>
+
+      {picker != null ? (
+        <CellPicker
+          cellNumber={picker + 1}
+          red={RED_CELLS.has(picker)}
+          editorial={editorials[picker] ?? ""}
+          onEditorial={(value) => {
+            const index = picker;
+            setEditorials((current) => {
+              const next = current.slice();
+              next[index] = value;
+              return next;
+            });
+          }}
+          onClose={() => setPicker(null)}
+          onPickFile={() => openGallery(picker)}
+          onPickWork={(work) => applyAnilistWork(picker, work)}
+        />
+      ) : null}
 
       <input
         ref={fileRef}

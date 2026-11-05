@@ -325,13 +325,59 @@
   overflow-wrap: anywhere;
 }
 
-.board-layout.is-exporting .title-input {
+.board-layout.is-exporting .title-input,
+.board-layout.is-exporting .editorial-input {
   display: none;
 }
 
 .board-layout.is-exporting .title-text {
   display: block;
   min-height: 1.25em;
+}
+
+.title-row-red {
+  align-items: start;
+}
+
+.title-row-red .title-num {
+  padding-top: 8px;
+}
+
+.editorial-input {
+  width: 100%;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #d0122a;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 4px 8px;
+}
+
+.editorial-input::placeholder {
+  color: #e07a93;
+  font-weight: 700;
+}
+
+.editorial-input:focus {
+  outline: 2px solid #ff2438;
+  outline-offset: 1px;
+}
+
+.editorial-text {
+  display: none;
+}
+
+.board-layout.is-exporting .editorial-text {
+  display: block;
+  margin-top: 2px;
+  color: #9d1020;
+  font-size: 0.85rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-transform: none;
 }
 
 @media (min-width: 960px) {
@@ -496,11 +542,39 @@
   aspect-ratio: 2 / 3;
   background: #ffffff;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .cell-red {
   background: #f7c0d0;
-  border: 3px solid #ff2438;
+  border: 5px solid #ff2438;
+}
+
+.editorial-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20%;
+  padding: 0 5%;
+  background: #ff2438;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 12cqw;
+  line-height: 1.05;
+  text-align: center;
+  pointer-events: none;
+}
+
+.editorial-band span {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .cell img {
@@ -725,6 +799,151 @@
   color: #ffffff;
   font-weight: 800;
   text-decoration: none;
+}
+
+.picker {
+  width: min(440px, calc(100vw - 24px));
+  max-height: min(86vh, 720px);
+  margin: auto;
+  padding: 16px;
+  border: 0;
+  border-radius: 16px;
+  background: #e7f7fc;
+  color: #17324c;
+  box-shadow: 0 18px 50px rgba(14, 80, 110, 0.28);
+}
+
+.picker::backdrop {
+  background: rgba(23, 50, 76, 0.45);
+}
+
+.picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 8px;
+}
+
+.picker-head h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.picker-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #17324c;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.picker-note,
+.picker-status {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.picker-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #0e86ae;
+}
+
+.picker-label input {
+  border: 0;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17324c;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 8px 10px;
+}
+
+.picker-label input:focus {
+  outline: 2px solid #0e86ae;
+  outline-offset: 1px;
+}
+
+.picker-results {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.picker-results button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px;
+  border: 0;
+  border-radius: 10px;
+  background: #ffffff;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.picker-results button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.picker-results img {
+  width: 42px;
+  height: 63px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex: none;
+}
+
+.picker-results span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.picker-results strong {
+  font-size: 0.95rem;
+}
+
+.picker-results small {
+  color: #3e6278;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.picker-file {
+  width: 100%;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #0e86ae;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
 }
 
 .file-input {

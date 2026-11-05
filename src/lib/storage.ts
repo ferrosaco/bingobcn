@@ -6,6 +6,7 @@ export type BoardRecord = {
   images: (Blob | null)[];
   score: string;
   titles?: string[];
+  editorials?: string[];
 };
 
 function openDb(): Promise<IDBDatabase> {
