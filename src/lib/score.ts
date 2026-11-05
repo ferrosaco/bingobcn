@@ -17,10 +17,14 @@ function lines(): number[][] {
   return [...rows, ...columns, [0, 6, 12, 18, 24], [4, 8, 12, 16, 20]];
 }
 
+function sameText(left: string, right: string): boolean {
+  return left.trim().toLocaleLowerCase("es") === right.trim().toLocaleLowerCase("es");
+}
+
 export function matchLicense(title: string): LicenseAnswer | undefined {
   const trimmed = title.trim();
   if (!trimmed) return undefined;
-  return LICENSES.find((license) => license.title.trim() === trimmed);
+  return LICENSES.find((license) => sameText(license.title, trimmed));
 }
 
 function basePoints(index: number, editorialHit: boolean): number {
@@ -39,7 +43,7 @@ export function scoreBoard(titles: string[], editorials: string[]): {
     const editorialHit = Boolean(
       license?.editorial &&
         RED_CELLS.has(index) &&
-        (editorials[index] ?? "") === license.editorial,
+        sameText(editorials[index] ?? "", license.editorial),
     );
     const hit = Boolean(license);
     return {
