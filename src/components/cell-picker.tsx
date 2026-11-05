@@ -114,14 +114,6 @@ export function CellPicker({
           ×
         </button>
       </form>
-      {red ? (
-        <p className="picker-note">
-          Casilla roja. La editorial se escribe aquí o en Títulos y sale en una franja al pie de la
-          portada.
-        </p>
-      ) : (
-        <p className="picker-note">Busca la obra en AniList o elige una foto de tu galería.</p>
-      )}
       <label className="picker-label">
         Buscar en AniList
         <input

@@ -466,29 +466,30 @@ export function BingoApp() {
                       });
                     }}
                   />
-                  <span className="title-text">{title}</span>
+                  <span className="title-text">
+                    {[title.trim(), red ? editorials[index]?.trim() : ""]
+                      .filter(Boolean)
+                      .join(" ")}
+                    {HEART_CELLS.has(index) ? <Heart className="title-mark" /> : null}
+                    {index === STAR_CELL ? <Star className="title-mark" /> : null}
+                  </span>
                   {red ? (
-                    <>
-                      <input
-                        className="editorial-input"
-                        value={editorials[index] ?? ""}
-                        maxLength={40}
-                        autoComplete="off"
-                        placeholder="Editorial"
-                        aria-label={`Editorial de la casilla ${index + 1}`}
-                        onChange={(event) => {
-                          const value = event.target.value;
-                          setEditorials((current) => {
-                            const next = current.slice();
-                            next[index] = value;
-                            return next;
-                          });
-                        }}
-                      />
-                      {editorials[index]?.trim() ? (
-                        <span className="editorial-text">{editorials[index].trim()}</span>
-                      ) : null}
-                    </>
+                    <input
+                      className="editorial-input"
+                      value={editorials[index] ?? ""}
+                      maxLength={40}
+                      autoComplete="off"
+                      placeholder="Editorial"
+                      aria-label={`Editorial de la casilla ${index + 1}`}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        setEditorials((current) => {
+                          const next = current.slice();
+                          next[index] = value;
+                          return next;
+                        });
+                      }}
+                    />
                   ) : null}
                 </div>
               </li>
