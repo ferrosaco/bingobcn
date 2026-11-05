@@ -885,6 +885,15 @@
   outline-offset: 1px;
 }
 
+.picker-editorial {
+  margin: 0 0 10px;
+  color: #d0122a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: lowercase;
+}
+
 .picker-results {
   list-style: none;
   margin: 0 0 12px;

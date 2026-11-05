@@ -518,11 +518,6 @@ export function BingoApp() {
         </section>
         </div>
 
-        <p className="fine-print">
-          Las portadas, los títulos y las editoriales se quedan en este dispositivo. La búsqueda en
-          AniList solo envía el texto que escribes.
-        </p>
-
         {previewUrl ? (
           <section className="preview" aria-label="Imagen exportada">
             <h2>Cartón exportado</h2>
@@ -562,14 +557,6 @@ export function BingoApp() {
           cellNumber={picker + 1}
           red={RED_CELLS.has(picker)}
           editorial={editorials[picker] ?? ""}
-          onEditorial={(value) => {
-            const index = picker;
-            setEditorials((current) => {
-              const next = current.slice();
-              next[index] = value;
-              return next;
-            });
-          }}
           onClose={() => setPicker(null)}
           onPickFile={() => openGallery(picker)}
           onPickWork={(work) => applyAnilistWork(picker, work)}

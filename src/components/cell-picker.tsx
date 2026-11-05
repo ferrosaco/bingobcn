@@ -20,7 +20,6 @@ export function CellPicker({
   cellNumber,
   red,
   editorial,
-  onEditorial,
   onClose,
   onPickFile,
   onPickWork,
@@ -28,7 +27,6 @@ export function CellPicker({
   cellNumber: number;
   red: boolean;
   editorial: string;
-  onEditorial: (value: string) => void;
   onClose: () => void;
   onPickFile: () => void;
   onPickWork: (work: AnilistWork) => Promise<void>;
@@ -141,17 +139,7 @@ export function CellPicker({
           ))}
         </ul>
       ) : null}
-      {red ? (
-        <label className="picker-label">
-          Editorial
-          <input
-            value={editorial}
-            maxLength={40}
-            placeholder="Opcional"
-            onChange={(event) => onEditorial(event.target.value)}
-          />
-        </label>
-      ) : null}
+      {red && editorial.trim() ? <p className="picker-editorial">{editorial}</p> : null}
       <button
         type="button"
         className="picker-file"
