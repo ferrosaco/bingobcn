@@ -611,7 +611,7 @@ select.editorial-input option {
 }
 
 .cell-correct {
-  border: 5px solid #24ff48;
+  border: 5px solid #00991a;
 }
 
 .cell-correct::after {
@@ -619,7 +619,7 @@ select.editorial-input option {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: rgba(36, 255, 72, 0.22);
+  background: rgba(0, 153, 26, 0.22);
   pointer-events: none;
 }
 
@@ -651,7 +651,7 @@ select.editorial-input option {
 }
 
 .editorial-band-correct {
-  background: #24ff48;
+  background: #00991a;
 }
 
 .cell img {
