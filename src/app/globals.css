@@ -155,7 +155,7 @@
   .notice,
   .fine-print,
   .preview,
-  .credit {
+  .credits {
     grid-column: 1 / -1;
   }
 
@@ -652,8 +652,16 @@
   font-size: 0.85rem;
 }
 
-.credit {
+.credits {
   margin: 28px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.credit {
+  margin: 0;
   text-align: center;
   color: #3e6278;
   font-size: 0.9rem;
@@ -661,9 +669,27 @@
 }
 
 .credit a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   color: #0e86ae;
   font-weight: 800;
   text-decoration: none;
+}
+
+.credit-logo {
+  width: 0.95em;
+  height: 0.95em;
+  display: block;
+  flex: none;
+}
+
+.credit-logo-x {
+  color: #111111;
+}
+
+.credit-logo-bsky {
+  color: #1185fe;
 }
 
 .credit a:hover {
