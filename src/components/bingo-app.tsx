@@ -41,6 +41,21 @@ function customEditorialFlags(values: string[]): boolean[] {
   return values.map((value) => value !== "" && !isPublisher(value));
 }
 
+function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
+  const logo = publisherLogo(name);
+  const [failed, setFailed] = useState(false);
+  return (
+    <span className={correct ? "editorial-band editorial-band-correct" : "editorial-band"}>
+      {logo && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="editorial-logo" src={logo} alt={name} onError={() => setFailed(true)} />
+      ) : (
+        <span>{name}</span>
+      )}
+    </span>
+  );
+}
+
 function XLogo() {
   return (
     <svg className="credit-logo credit-logo-x" viewBox="0 0 24 24" aria-hidden="true">
@@ -94,6 +109,7 @@ export function BingoApp() {
   const [titles, setTitles] = useState<string[]>(emptyTitles);
   const [editorials, setEditorials] = useState<string[]>(emptyEditorials);
   const [otherEditorial, setOtherEditorial] = useState<boolean[]>(emptyFlags);
+  const [keepStored, setKeepStored] = useState<boolean[]>(emptyFlags);
   const [showAnswers, setShowAnswers] = useState(true);
   const [score, setScore] = useState("");
   const [picker, setPicker] = useState<number | null>(null);
@@ -112,16 +128,21 @@ export function BingoApp() {
   useEffect(() => {
     let cancelled = false;
     loadBoard()
-      .then((record) => {
+      .then(({ record, unreadable }) => {
         if (cancelled) return;
         if (record) {
           const next = emptySlots();
+          const preserve = emptyFlags();
           record.images.forEach((blob, index) => {
-            if (blob && index < CELL_COUNT) {
-              next[index] = { blob, url: URL.createObjectURL(blob) };
+            if (index >= CELL_COUNT) return;
+            if (unreadable[index]) {
+              preserve[index] = true;
+              return;
             }
+            if (blob) next[index] = { blob, url: URL.createObjectURL(blob) };
           });
           setSlots(next);
+          setKeepStored(preserve);
           setScore(record.score ?? "");
           const storedTitles = emptyTitles();
           record.titles?.forEach((title, index) => {
@@ -134,6 +155,11 @@ export function BingoApp() {
           });
           setEditorials(storedEditorials);
           setOtherEditorial(customEditorialFlags(storedEditorials));
+          if (preserve.some(Boolean)) {
+            setNotice(
+              "Algunas fotos no se han podido abrir. No las he vuelto a guardar, para no borrar lo que aún esté en este dispositivo.",
+            );
+          }
         }
         setHydrated(true);
       })
@@ -153,17 +179,20 @@ export function BingoApp() {
   useEffect(() => {
     if (!hydrated) return;
     const timeout = window.setTimeout(() => {
-      saveBoard({
-        images: slots.map((slot) => slot?.blob ?? null),
-        score,
-        titles,
-        editorials,
-      }).catch(() => {
+      saveBoard(
+        {
+          images: slots.map((slot) => slot?.blob ?? null),
+          score,
+          titles,
+          editorials,
+        },
+        keepStored,
+      ).catch(() => {
         setNotice("No se ha podido guardar el cartón en este dispositivo.");
       });
     }, 300);
     return () => window.clearTimeout(timeout);
-  }, [slots, score, titles, editorials, hydrated]);
+  }, [slots, score, titles, editorials, keepStored, hydrated]);
 
   function replaceSlot(index: number, blob: Blob) {
     setSlots((current) => {
@@ -171,6 +200,11 @@ export function BingoApp() {
       const previous = next[index];
       if (previous) URL.revokeObjectURL(previous.url);
       next[index] = { blob, url: URL.createObjectURL(blob) };
+      return next;
+    });
+    setKeepStored((current) => {
+      const next = current.slice();
+      next[index] = false;
       return next;
     });
     setNotice(null);
@@ -221,6 +255,11 @@ export function BingoApp() {
       next[index] = null;
       return next;
     });
+    setKeepStored((current) => {
+      const next = current.slice();
+      next[index] = false;
+      return next;
+    });
   }
 
   function shuffle() {
@@ -235,6 +274,7 @@ export function BingoApp() {
     setTitles((current) => order.map((index) => current[index] ?? ""));
     setEditorials((current) => order.map((index) => current[index] ?? ""));
     setOtherEditorial((current) => order.map((index) => current[index] ?? false));
+    setKeepStored((current) => order.map((index) => current[index] ?? false));
   }
 
   function clearAll() {
@@ -247,6 +287,7 @@ export function BingoApp() {
     setTitles(emptyTitles());
     setEditorials(emptyEditorials());
     setOtherEditorial(emptyFlags());
+    setKeepStored(emptyFlags());
   }
 
   function chooseEditorial(index: number, choice: string) {
@@ -403,7 +444,6 @@ export function BingoApp() {
                 const filled = Boolean(slot);
                 const editorial = red ? (editorials[index] ?? "") : "";
                 const verdict = showAnswers ? verdicts.cells[index] : undefined;
-                const logo = editorial ? publisherLogo(editorial) : null;
                 return (
                   <div
                     key={index}
@@ -443,18 +483,11 @@ export function BingoApp() {
                       onClick={() => openPicker(index)}
                     />
                     {editorial && filled ? (
-                      <span
-                        className={
-                          verdict?.editorialHit ? "editorial-band editorial-band-correct" : "editorial-band"
-                        }
-                      >
-                        {logo ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img className="editorial-logo" src={logo} alt={editorial} />
-                        ) : (
-                          <span>{editorial}</span>
-                        )}
-                      </span>
+                      <EditorialBand
+                        key={`${index}-${editorial}`}
+                        name={editorial}
+                        correct={Boolean(verdict?.editorialHit)}
+                      />
                     ) : null}
                     {heart ? <Heart className="mark" /> : null}
                     {star ? <Star className="mark" /> : null}

@@ -667,14 +667,19 @@ select.editorial-input option {
 }
 
 .cell .editorial-band .editorial-logo {
-  position: static;
+  position: relative;
   inset: auto;
+  z-index: 1;
   display: block;
+  flex: 0 0 auto;
   width: auto;
-  height: auto;
-  max-width: 94%;
-  max-height: 78%;
+  height: 18px;
+  height: 12cqw;
+  min-height: 14px;
+  max-width: 92%;
+  max-height: none;
   object-fit: contain;
+  object-position: center;
 }
 
 .cell-hit {
