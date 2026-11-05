@@ -194,7 +194,6 @@ export function BingoApp() {
     const blob = await fileToCover(file);
     replaceSlot(index, blob);
     setTitles((current) => {
-      if (current[index]?.trim()) return current;
       const next = current.slice();
       next[index] = work.title;
       return next;
