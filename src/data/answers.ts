@@ -11,4 +11,6 @@ export type LicenseAnswer = {
   editorial?: string;
 };
 
-export const LICENSES: LicenseAnswer[] = [];
+export const LICENSES: LicenseAnswer[] = [
+  { title: "Berserk", editorial: "Arechi Manga" },
+];

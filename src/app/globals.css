@@ -395,7 +395,12 @@
 }
 
 select.editorial-input {
+  color: #d0122a;
+}
+
+select.editorial-input option {
   color: #17324c;
+  font-weight: 700;
 }
 
 .editorial-other {
@@ -653,21 +658,23 @@ select.editorial-input {
   background: #24ff48;
 }
 
-.editorial-logo {
-  position: static;
-  inset: auto;
-  width: auto;
-  height: 70%;
-  max-width: 92%;
-  object-fit: contain;
-}
-
 .cell img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.cell .editorial-band .editorial-logo {
+  position: static;
+  inset: auto;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 94%;
+  max-height: 78%;
+  object-fit: contain;
 }
 
 .cell-hit {
@@ -853,6 +860,15 @@ select.editorial-input {
 
 .credit a:hover {
   text-decoration: underline;
+}
+
+.logo-copyright {
+  margin: 16px 0 0;
+  max-width: 28rem;
+  color: #6a8ea3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .preview {

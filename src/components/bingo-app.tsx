@@ -653,6 +653,9 @@ export function BingoApp() {
               <BlueskyLogo />
             </a>
           </p>
+          <p className="logo-copyright">
+            El copyright de los logotipos pertenece a las respectivas editoriales.
+          </p>
         </div>
       </div>
 
