@@ -137,12 +137,13 @@
 .bingo-column {
   width: min(560px, 100%);
   margin: 0 auto;
-  padding: 20px 12px 40px;
+  padding: 20px 12px 128px;
 }
 
 @media (min-width: 960px) {
   .bingo-column {
     width: min(1040px, 100%);
+    padding-bottom: 40px;
     display: grid;
     grid-template-columns: minmax(0, 640px) minmax(220px, 1fr);
     column-gap: 14px;
