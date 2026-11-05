@@ -687,6 +687,11 @@ select.editorial-input option {
   height: 18cqw;
 }
 
+.cell .editorial-band .editorial-logo-xl {
+  height: 26px;
+  height: 24cqw;
+}
+
 .cell-hit {
   position: absolute;
   inset: 0;

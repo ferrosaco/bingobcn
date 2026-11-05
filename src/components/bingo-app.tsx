@@ -45,12 +45,23 @@ function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
   const logo = publisherLogo(name);
   const [failed, setFailed] = useState(false);
   const large = name === "Milky Way Ediciones" || name === "Sekai Editorial";
+  const larger =
+    name === "Devir Manga" ||
+    name === "Norma Editorial" ||
+    name === "Pika Ediciones" ||
+    name === "Panini Manga";
   return (
     <span className={correct ? "editorial-band editorial-band-correct" : "editorial-band"}>
       {logo && !failed ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          className={large ? "editorial-logo editorial-logo-lg" : "editorial-logo"}
+          className={
+            larger
+              ? "editorial-logo editorial-logo-xl"
+              : large
+                ? "editorial-logo editorial-logo-lg"
+                : "editorial-logo"
+          }
           src={logo}
           alt={name}
           onError={() => setFailed(true)}
