@@ -505,6 +505,11 @@
   stroke: #ffffff;
 }
 
+.board-layout.is-exporting.has-titles .export-legend .star-icon path {
+  fill: #ffff8e;
+  stroke: #ffffff;
+}
+
 .export-hash,
 .export-score {
   margin-top: auto;
