@@ -153,7 +153,8 @@
   .toolbar,
   .notice,
   .fine-print,
-  .preview {
+  .preview,
+  .credit {
     grid-column: 1 / -1;
   }
 
@@ -642,6 +643,24 @@
   margin-top: 14px;
   color: #3e6278;
   font-size: 0.85rem;
+}
+
+.credit {
+  margin: 28px 0 0;
+  text-align: center;
+  color: #3e6278;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.credit a {
+  color: #0e86ae;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.credit a:hover {
+  text-decoration: underline;
 }
 
 .preview {

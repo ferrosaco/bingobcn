@@ -164,7 +164,6 @@ export function BingoApp() {
     }
     setSlots((current) => order.map((index) => current[index]));
     setTitles((current) => order.map((index) => current[index] ?? ""));
-    setNotice("Portadas y títulos mezclados. Corazones, estrella y casillas rojas siguen en su sitio.");
   }
 
   function clearAll() {
@@ -436,6 +435,13 @@ export function BingoApp() {
             </a>
           </section>
         ) : null}
+
+        <p className="credit">
+          Hecho por{" "}
+          <a href="https://x.com/jerdieh" target="_blank" rel="noreferrer">
+            @jerdieh
+          </a>
+        </p>
       </div>
 
       <input
