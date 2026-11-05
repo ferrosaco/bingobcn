@@ -44,11 +44,17 @@ function customEditorialFlags(values: string[]): boolean[] {
 function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
   const logo = publisherLogo(name);
   const [failed, setFailed] = useState(false);
+  const large = name === "Milky Way Ediciones" || name === "Sekai Editorial";
   return (
     <span className={correct ? "editorial-band editorial-band-correct" : "editorial-band"}>
       {logo && !failed ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="editorial-logo" src={logo} alt={name} onError={() => setFailed(true)} />
+        <img
+          className={large ? "editorial-logo editorial-logo-lg" : "editorial-logo"}
+          src={logo}
+          alt={name}
+          onError={() => setFailed(true)}
+        />
       ) : (
         <span>{name}</span>
       )}
@@ -375,6 +381,7 @@ export function BingoApp() {
   }
 
   const verdicts = scoreBoard(titles, editorials);
+  const shownScore = showAnswers ? String(verdicts.total) : score;
 
   return (
     <main className="bingo-page">
@@ -413,7 +420,6 @@ export function BingoApp() {
             />
             <span>Con respuestas</span>
           </label>
-          {showAnswers ? <p className="answers-score">{verdicts.total} puntos</p> : null}
         </div>
 
         {notice ? (
@@ -536,8 +542,11 @@ export function BingoApp() {
               <label className="score-line">
                 Puntuación:
                 <input
-                  value={score}
-                  onChange={(event) => setScore(event.target.value)}
+                  value={shownScore}
+                  readOnly={showAnswers}
+                  onChange={(event) => {
+                    if (!showAnswers) setScore(event.target.value);
+                  }}
                   inputMode="decimal"
                   maxLength={12}
                   aria-label="Puntuación"
@@ -654,7 +663,7 @@ export function BingoApp() {
                 <Star className="legend-icon star-icon" />
                 LIC. ESTRELLA (3 puntos)
               </p>
-              <p className="export-score">Puntuación:{score ? ` ${score}` : ""}</p>
+              <p className="export-score">Puntuación:{shownScore ? ` ${shownScore}` : ""}</p>
             </div>
           </footer>
         </section>

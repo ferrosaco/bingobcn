@@ -682,6 +682,11 @@ select.editorial-input option {
   object-position: center;
 }
 
+.cell .editorial-band .editorial-logo-lg {
+  height: 22px;
+  height: 18cqw;
+}
+
 .cell-hit {
   position: absolute;
   inset: 0;
@@ -815,6 +820,10 @@ select.editorial-input option {
 .score-line input:focus {
   outline: none;
   border-bottom-color: #0e86ae;
+}
+
+.score-line input[readonly] {
+  cursor: default;
 }
 
 .fine-print {
