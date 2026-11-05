@@ -248,7 +248,7 @@ export function BingoApp() {
         <div className="toolbar">
           <Button type="button" className="tool-btn tool-btn-primary" onClick={shuffle}>
             <Dices />
-            Aleatorio
+            Aleatorizar orden
           </Button>
           <Button
             type="button"
