@@ -240,10 +240,16 @@
 .board-layout.is-exporting.has-titles .sheet-shadow {
   flex: 0 0 620px;
   width: 620px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   filter: none;
+  background: #f26367;
 }
 
 .board-layout.is-exporting.has-titles .sheet {
+  width: 100%;
   background: #f26367;
 }
 
