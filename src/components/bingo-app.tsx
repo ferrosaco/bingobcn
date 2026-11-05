@@ -14,7 +14,9 @@ import {
   STAR_CELL,
   cellDescription,
 } from "@/lib/board";
-import { fileToCover } from "@/lib/covers";
+import { OTHER_EDITORIAL, PUBLISHERS, isPublisher, publisherLogo } from "@/data/publishers";
+import { blobAsImage, blobToDataUrl, fileToCover } from "@/lib/covers";
+import { scoreBoard } from "@/lib/score";
 import { loadBoard, saveBoard } from "@/lib/storage";
 
 type Slot = { url: string; blob: Blob } | null;
@@ -29,6 +31,14 @@ function emptyTitles(): string[] {
 
 function emptyEditorials(): string[] {
   return Array.from({ length: CELL_COUNT }, () => "");
+}
+
+function emptyFlags(): boolean[] {
+  return Array.from({ length: CELL_COUNT }, () => false);
+}
+
+function customEditorialFlags(values: string[]): boolean[] {
+  return values.map((value) => value !== "" && !isPublisher(value));
 }
 
 function XLogo() {
@@ -83,6 +93,8 @@ export function BingoApp() {
   const [slots, setSlots] = useState<Slot[]>(emptySlots);
   const [titles, setTitles] = useState<string[]>(emptyTitles);
   const [editorials, setEditorials] = useState<string[]>(emptyEditorials);
+  const [otherEditorial, setOtherEditorial] = useState<boolean[]>(emptyFlags);
+  const [showAnswers, setShowAnswers] = useState(true);
   const [score, setScore] = useState("");
   const [picker, setPicker] = useState<number | null>(null);
   const [hydrated, setHydrated] = useState(false);
@@ -121,6 +133,7 @@ export function BingoApp() {
             if (index < CELL_COUNT && typeof editorial === "string") storedEditorials[index] = editorial;
           });
           setEditorials(storedEditorials);
+          setOtherEditorial(customEditorialFlags(storedEditorials));
         }
         setHydrated(true);
       })
@@ -221,6 +234,7 @@ export function BingoApp() {
     setSlots((current) => order.map((index) => current[index]));
     setTitles((current) => order.map((index) => current[index] ?? ""));
     setEditorials((current) => order.map((index) => current[index] ?? ""));
+    setOtherEditorial((current) => order.map((index) => current[index] ?? false));
   }
 
   function clearAll() {
@@ -232,6 +246,33 @@ export function BingoApp() {
     });
     setTitles(emptyTitles());
     setEditorials(emptyEditorials());
+    setOtherEditorial(emptyFlags());
+  }
+
+  function chooseEditorial(index: number, choice: string) {
+    if (choice === OTHER_EDITORIAL) {
+      setOtherEditorial((current) => {
+        const next = current.slice();
+        next[index] = true;
+        return next;
+      });
+      setEditorials((current) => {
+        const next = current.slice();
+        if (isPublisher(next[index] ?? "")) next[index] = "";
+        return next;
+      });
+      return;
+    }
+    setOtherEditorial((current) => {
+      const next = current.slice();
+      next[index] = false;
+      return next;
+    });
+    setEditorials((current) => {
+      const next = current.slice();
+      next[index] = choice;
+      return next;
+    });
   }
 
   async function exportCard() {
@@ -248,10 +289,24 @@ export function BingoApp() {
       await new Promise((resolve) => {
         requestAnimationFrame(() => requestAnimationFrame(resolve));
       });
+      const covers = new Map<string, Blob>();
+      slots.forEach((slot) => {
+        if (slot) covers.set(slot.url, slot.blob);
+      });
+      await Promise.all(
+        [...node.querySelectorAll("img")].map((image) =>
+          image.decode().catch(() => undefined),
+        ),
+      );
       const { domToBlob } = await import("modern-screenshot");
       const blob = await domToBlob(node, {
         scale: 3,
         backgroundColor: includeTitles ? "#c2e3f2" : "#d4f2fb",
+        fetchFn: async (url) => {
+          const cover = covers.get(url);
+          if (!cover) return false;
+          return blobToDataUrl(await blobAsImage(cover));
+        },
       });
       if (!blob) throw new Error("export vacía");
       const url = URL.createObjectURL(blob);
@@ -272,6 +327,8 @@ export function BingoApp() {
       setExporting(false);
     }
   }
+
+  const verdicts = scoreBoard(titles, editorials);
 
   return (
     <main className="bingo-page">
@@ -299,6 +356,18 @@ export function BingoApp() {
             <Trash2 />
             Vaciar
           </Button>
+        </div>
+
+        <div className="answers-bar">
+          <label className="answers-switch">
+            <input
+              type="checkbox"
+              checked={showAnswers}
+              onChange={(event) => setShowAnswers(event.target.checked)}
+            />
+            <span>Con respuestas</span>
+          </label>
+          {showAnswers ? <p className="answers-score">{verdicts.total} puntos</p> : null}
         </div>
 
         {notice ? (
@@ -332,13 +401,16 @@ export function BingoApp() {
                 const heart = HEART_CELLS.has(index);
                 const star = index === STAR_CELL;
                 const filled = Boolean(slot);
-                const editorial = red ? editorials[index]?.trim() : "";
+                const editorial = red ? (editorials[index] ?? "") : "";
+                const verdict = showAnswers ? verdicts.cells[index] : undefined;
+                const logo = editorial ? publisherLogo(editorial) : null;
                 return (
                   <div
                     key={index}
                     className={[
                       "cell",
                       red ? "cell-red" : "",
+                      verdict?.hit ? "cell-correct" : "",
                       dragIndex === index ? "cell-drop" : "",
                     ]
                       .filter(Boolean)
@@ -371,8 +443,17 @@ export function BingoApp() {
                       onClick={() => openPicker(index)}
                     />
                     {editorial && filled ? (
-                      <span className="editorial-band">
-                        <span>{editorial}</span>
+                      <span
+                        className={
+                          verdict?.editorialHit ? "editorial-band editorial-band-correct" : "editorial-band"
+                        }
+                      >
+                        {logo ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img className="editorial-logo" src={logo} alt={editorial} />
+                        ) : (
+                          <span>{editorial}</span>
+                        )}
                       </span>
                     ) : null}
                     {heart ? <Heart className="mark" /> : null}
@@ -474,22 +555,45 @@ export function BingoApp() {
                     {index === STAR_CELL ? <Star className="title-mark" /> : null}
                   </span>
                   {red ? (
-                    <input
-                      className="editorial-input"
-                      value={editorials[index] ?? ""}
-                      maxLength={40}
-                      autoComplete="off"
-                      placeholder="Editorial"
-                      aria-label={`Editorial de la casilla ${index + 1}`}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        setEditorials((current) => {
-                          const next = current.slice();
-                          next[index] = value;
-                          return next;
-                        });
-                      }}
-                    />
+                    <>
+                      <select
+                        className="editorial-input"
+                        aria-label={`Editorial de la casilla ${index + 1}`}
+                        value={
+                          otherEditorial[index] ||
+                          ((editorials[index] ?? "") !== "" && !isPublisher(editorials[index] ?? ""))
+                            ? OTHER_EDITORIAL
+                            : (editorials[index] ?? "")
+                        }
+                        onChange={(event) => chooseEditorial(index, event.target.value)}
+                      >
+                        <option value="">Editorial</option>
+                        {PUBLISHERS.map((name) => (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        ))}
+                        <option value={OTHER_EDITORIAL}>Otra</option>
+                      </select>
+                      {otherEditorial[index] ||
+                      ((editorials[index] ?? "") !== "" && !isPublisher(editorials[index] ?? "")) ? (
+                        <input
+                          className="editorial-input editorial-other"
+                          value={editorials[index] ?? ""}
+                          maxLength={60}
+                          autoComplete="off"
+                          aria-label={`Otra editorial de la casilla ${index + 1}`}
+                          onChange={(event) => {
+                            const value = event.target.value;
+                            setEditorials((current) => {
+                              const next = current.slice();
+                              next[index] = value;
+                              return next;
+                            });
+                          }}
+                        />
+                      ) : null}
+                    </>
                   ) : null}
                 </div>
               </li>
