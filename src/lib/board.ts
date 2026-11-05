@@ -1,10 +1,10 @@
 export const CELL_COUNT = 25;
 
-/** Casillas rosas de la plantilla, con reborde rojo. Índice de izquierda a derecha, arriba a abajo. */
-export const RED_CELLS = new Set([2, 14, 15, 22]);
+/** Centro de cada lado: arriba, izquierda, derecha, abajo. */
+export const RED_CELLS = new Set([2, 10, 14, 22]);
 
-/** Corazones (milagritos). Se quedan fijos al mezclar las portadas. */
-export const HEART_CELLS = new Set([0, 4, 11, 21, 24]);
+/** Corazones (milagritos) en las cuatro esquinas. */
+export const HEART_CELLS = new Set([0, 4, 20, 24]);
 
 /** Estrella (licencia estrella), centro del cartón. */
 export const STAR_CELL = 12;

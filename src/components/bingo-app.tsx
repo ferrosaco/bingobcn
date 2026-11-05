@@ -21,6 +21,10 @@ function emptySlots(): Slot[] {
   return Array.from({ length: CELL_COUNT }, () => null);
 }
 
+function emptyTitles(): string[] {
+  return Array.from({ length: CELL_COUNT }, () => "");
+}
+
 function Heart({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
@@ -49,6 +53,7 @@ function Star({ className }: { className?: string }) {
 
 export function BingoApp() {
   const [slots, setSlots] = useState<Slot[]>(emptySlots);
+  const [titles, setTitles] = useState<string[]>(emptyTitles);
   const [score, setScore] = useState("");
   const [hydrated, setHydrated] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -56,6 +61,7 @@ export function BingoApp() {
   const [notice, setNotice] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const sheetRef = useRef<HTMLElement>(null);
+  const layoutRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const targetRef = useRef<number | null>(null);
   const slotsRef = useRef(slots);
@@ -75,6 +81,11 @@ export function BingoApp() {
           });
           setSlots(next);
           setScore(record.score ?? "");
+          const storedTitles = emptyTitles();
+          record.titles?.forEach((title, index) => {
+            if (index < CELL_COUNT && typeof title === "string") storedTitles[index] = title;
+          });
+          setTitles(storedTitles);
         }
         setHydrated(true);
       })
@@ -97,12 +108,13 @@ export function BingoApp() {
       saveBoard({
         images: slots.map((slot) => slot?.blob ?? null),
         score,
+        titles,
       }).catch(() => {
         setNotice("No se ha podido guardar el cartón en este dispositivo.");
       });
     }, 300);
     return () => window.clearTimeout(timeout);
-  }, [slots, score, hydrated]);
+  }, [slots, score, titles, hydrated]);
 
   function replaceSlot(index: number, blob: Blob) {
     setSlots((current) => {
@@ -143,17 +155,16 @@ export function BingoApp() {
   }
 
   function shuffle() {
-    setSlots((current) => {
-      const next = current.slice();
-      for (let index = next.length - 1; index > 0; index -= 1) {
-        const swap = Math.floor(Math.random() * (index + 1));
-        const hold = next[index];
-        next[index] = next[swap];
-        next[swap] = hold;
-      }
-      return next;
-    });
-    setNotice("Portadas mezcladas. Corazones, estrella y casillas rojas siguen en su sitio.");
+    const order = Array.from({ length: CELL_COUNT }, (_, index) => index);
+    for (let index = order.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      const hold = order[index];
+      order[index] = order[swap];
+      order[swap] = hold;
+    }
+    setSlots((current) => order.map((index) => current[index]));
+    setTitles((current) => order.map((index) => current[index] ?? ""));
+    setNotice("Portadas y títulos mezclados. Corazones, estrella y casillas rojas siguen en su sitio.");
   }
 
   function clearAll() {
@@ -167,14 +178,21 @@ export function BingoApp() {
   }
 
   async function exportCard() {
-    const sheet = sheetRef.current;
-    if (!sheet) return;
+    const includeTitles = titles.some((title) => title.trim() !== "");
     flushSync(() => setExporting(true));
+    const node = includeTitles ? layoutRef.current : sheetRef.current;
+    if (!node) {
+      setExporting(false);
+      return;
+    }
     setNotice(null);
     try {
       await document.fonts.ready;
+      await new Promise((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
       const { domToBlob } = await import("modern-screenshot");
-      const blob = await domToBlob(sheet, {
+      const blob = await domToBlob(node, {
         scale: 3,
         backgroundColor: "#d4f2fb",
       });
@@ -202,12 +220,8 @@ export function BingoApp() {
     <main className="bingo-page">
       <div className="bingo-column">
         <header className="intro">
-          <p className="eyebrow">Manga BCN 2026</p>
           <h1>Bingo de licencias</h1>
-          <p>
-            Toca una casilla y elige una portada de tu galería. Aleatorio solo mezcla las fotos:
-            los corazones, la estrella y el reborde rojo se quedan fijos.
-          </p>
+          <p>Toca una casilla y elige una portada de tu galería.</p>
         </header>
 
         <div className="toolbar">
@@ -236,6 +250,14 @@ export function BingoApp() {
           </p>
         ) : null}
 
+        <div
+          ref={layoutRef}
+          className={
+            exporting && titles.some((title) => title.trim() !== "")
+              ? "board-layout is-exporting has-titles"
+              : "board-layout"
+          }
+        >
         <div className="sheet-shadow">
           <article
             ref={sheetRef}
@@ -343,8 +365,38 @@ export function BingoApp() {
           </article>
         </div>
 
+        <section className="titles" aria-label="Títulos de las obras">
+          <h2>Títulos</h2>
+          <ol>
+            {titles.map((title, index) => (
+              <li key={index} className="title-row">
+                <span className="title-num">{index + 1}</span>
+                <div className="title-field">
+                  <input
+                    className="title-input"
+                    value={title}
+                    maxLength={80}
+                    autoComplete="off"
+                    aria-label={`Título de la casilla ${index + 1}`}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setTitles((current) => {
+                        const next = current.slice();
+                        next[index] = value;
+                        return next;
+                      });
+                    }}
+                  />
+                  <span className="title-text">{title}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+        </div>
+
         <p className="fine-print">
-          Las portadas se quedan en este dispositivo. Nada se sube a un servidor.
+          Las portadas y los títulos se quedan en este dispositivo. Nada se sube a un servidor.
         </p>
 
         {previewUrl ? (
