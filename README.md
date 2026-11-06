@@ -1,18 +1,17 @@
 # Bingo Barcelona
 
-Cartón de bingo de licencias para el Manga BCN. Se usa en el navegador, sin cuenta y sin servidor: las portadas se quedan en el dispositivo y el cartón se puede exportar como imagen.
+Cartón de bingo de licencias para el Manga BCN. Permite elegir los títulos desde AniList, importarlos desde el dispositivo y exportar el bingo final. No almacena nada en ningún servidor.
 
 ## Qué hace
 
-- Parrilla de 5×5 con proporción de portada de manga (2:3).
+- Bingo de 5×5 con proporción 2:3, que sigue las reglas del Bingo Barcelona de Onumachi.
 - Cada casilla abre la galería (o acepta una foto arrastrada) para poner una portada.
-- Corazones, estrella y casillas con reborde rojo van fijos, por encima de la foto.
-- **Aleatorio** mezcla las portadas y, si las hay, sus títulos. Corazones, estrella y casillas rojas no se mueven.
-- Un listado del 1 al 25 para anotar el título de cada obra. En el móvil va debajo del cartón; en escritorio, a la derecha.
+- **Aleatorio** mezcla las portadas y, si las hay, sus títulos. Se mantiene la ubicación de las casillas especiales (pero no de su contenido).
+- Un listado del 1 al 25 para anotar el título de cada obra. Si se elige la portada desde AniList el título se rellena automáticamente.
+- Un desplegable para elegir la editorial en las casillas rojas. Se ofrecen las editoriales que presentan licencias durante el Manga Barcelona 2026.
 - **Exportar imagen** descarga el cartón en PNG. Si hay algún título, el listado sale a la derecha; si no, la imagen es solo el cartón.
-- El cartón se recuerda en este navegador.
+- El cartón se almacena en el navegador y reacciona de forma dinámica a las actualizaciones de licencias.
 
-La búsqueda en Google Imágenes no está: no hay una forma fiable de hacerlo sin una API de pago y sin romper las normas de Google.
 
 ## Arrancar en local
 
@@ -22,7 +21,3 @@ npm run dev
 ```
 
 Abre [http://localhost:3847](http://localhost:3847).
-
-## Publicar en Vercel
-
-El proyecto es un Next.js estático en la práctica (no hay base de datos ni variables de entorno). En el panel de Vercel, importa el repositorio y despliega con los valores por defecto.
