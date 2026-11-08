@@ -1,6 +1,11 @@
 # Bingo Barcelona
 
-Cartón de bingo de licencias para el Manga BCN. Permite elegir los títulos desde AniList, importarlos desde el dispositivo y exportar el bingo final. No almacena nada en ningún servidor.
+<p align="center">
+  <img src="public/bingo-barcelona.png" alt="Ejemplo de bingo" width="700" />
+</p>
+
+Generador de cartones de bingo para el Manga BCN. Permite elegir los títulos desde AniList, importarlos desde el dispositivo y exportar el bingo final. No almacena nada en ningún servidor.
+
 
 ## Qué hace
 
@@ -8,7 +13,7 @@ Cartón de bingo de licencias para el Manga BCN. Permite elegir los títulos des
 - Cada casilla abre la galería (o acepta una foto arrastrada) para poner una portada.
 - **Aleatorio** mezcla las portadas y, si las hay, sus títulos. Se mantiene la ubicación de las casillas especiales (pero no de su contenido).
 - Un listado del 1 al 25 para anotar el título de cada obra. Si se elige la portada desde AniList el título se rellena automáticamente.
-- Un desplegable para elegir la editorial en las casillas rojas. Se ofrecen las editoriales que presentan licencias durante el Manga Barcelona 2026.
+- Un desplegable para elegir la editorial en las casillas rojas. Se ofrecen las editoriales que presentan licencias durante el Manga Barcelona 2026, con sus logos.
 - **Exportar imagen** descarga el cartón en PNG. Si hay algún título, el listado sale a la derecha; si no, la imagen es solo el cartón.
 - El cartón se almacena en el navegador y reacciona de forma dinámica a las actualizaciones de licencias.
 
