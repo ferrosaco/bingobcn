@@ -47,9 +47,12 @@ function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
   const large = name === "Sekai Editorial";
   const larger =
     name === "Devir Manga" ||
+    name === "Ivrea" ||
+    name === "Kibook Ediciones" ||
     name === "Norma Editorial" ||
     name === "Pika Ediciones" ||
     name === "Panini Manga" ||
+    name === "Satori Ediciones" ||
     name === "Milky Way Ediciones";
   return (
     <span className={correct ? "editorial-band editorial-band-correct" : "editorial-band"}>
