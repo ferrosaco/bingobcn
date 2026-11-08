@@ -44,15 +44,13 @@ function customEditorialFlags(values: string[]): boolean[] {
 function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
   const logo = publisherLogo(name);
   const [failed, setFailed] = useState(false);
-  const large = name === "Sekai Editorial";
+  const large = name === "Sekai Editorial" || name === "Ivrea" || name === "Satori Ediciones";
   const larger =
     name === "Devir Manga" ||
-    name === "Ivrea" ||
     name === "Kibook Ediciones" ||
     name === "Norma Editorial" ||
     name === "Pika Ediciones" ||
     name === "Panini Manga" ||
-    name === "Satori Ediciones" ||
     name === "Milky Way Ediciones";
   return (
     <span className={correct ? "editorial-band editorial-band-correct" : "editorial-band"}>
