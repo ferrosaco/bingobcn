@@ -6,6 +6,7 @@ export const PUBLISHERS = [
   "Ediciones Babylon",
   "Fandogamia",
   "Ivrea",
+  "Kibook Ediciones",
   "Mangaline Ediciones",
   "Milky Way Ediciones",
   "Moztros",
@@ -13,6 +14,7 @@ export const PUBLISHERS = [
   "Panini Manga",
   "Pika Ediciones",
   "Planeta Cómic",
+  "Satori Ediciones",
   "Sekai Editorial",
 ] as const;
 
