@@ -44,7 +44,8 @@ function customEditorialFlags(values: string[]): boolean[] {
 function EditorialBand({ name, correct }: { name: string; correct: boolean }) {
   const logo = publisherLogo(name);
   const [failed, setFailed] = useState(false);
-  const large = name === "Sekai Editorial" || name === "Ivrea" || name === "Satori Ediciones";
+  const large =
+    name === "Sekai Editorial" || name === "Ivrea" || name === "Satori Ediciones" || name === "Ooso Còmic";
   const larger =
     name === "Devir Manga" ||
     name === "Kibook Ediciones" ||

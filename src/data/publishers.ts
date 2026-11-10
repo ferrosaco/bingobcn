@@ -11,6 +11,7 @@ export const PUBLISHERS = [
   "Milky Way Ediciones",
   "Moztros",
   "Norma Editorial",
+  "Ooso Còmic",
   "Panini Manga",
   "Pika Ediciones",
   "Planeta Cómic",
